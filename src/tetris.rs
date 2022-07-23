@@ -26,7 +26,7 @@ impl Tetris {
         }
     }
     pub fn is_out_of_bounds(&self, shape: &Shape) -> bool {
-        shape
+        !shape
             .positions()
             .all(|pos| 0 <= pos.0 && pos.0 < self.width && 0 <= pos.1 && pos.1 < self.height)
     }
