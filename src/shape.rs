@@ -1,7 +1,13 @@
-use std::collections::HashSet;
+use std::{collections::HashSet, ops::Add};
 
 #[derive(Debug, Hash, PartialEq, Eq, Clone, Copy)]
 pub struct Pos(pub i32, pub i32);
+impl Add for Pos {
+    type Output = Pos;
+    fn add(self, rhs: Pos) -> Pos {
+        Pos(self.0 + rhs.0, self.1 + rhs.1)
+    }
+}
 #[derive(Debug, Clone)]
 pub struct Shape {
     positions: HashSet<Pos>,
@@ -44,6 +50,32 @@ impl Shape {
             5 => Self::new_s(),
             6 => Self::new_z(),
             _ => unreachable!(),
+        }
+    }
+    pub fn positions(&self) -> impl Iterator<Item = Pos> + '_ {
+        self.positions.iter().copied()
+    }
+    pub fn collides_with(&self, other: &Shape) -> bool {
+        self.positions.intersection(&other.positions).count() > 0
+    }
+    pub fn rotate(&self) -> Self {
+        let Pos(a, b) = self.anchor;
+        Self {
+            positions: self
+                .positions()
+                .map(|Pos(x, y)| Pos(-y + b + a, x - a + b))
+                .collect(),
+            anchor: self.anchor,
+        }
+    }
+}
+
+impl Add<Pos> for &Shape {
+    type Output = Shape;
+    fn add(self, rhs: Pos) -> Self::Output {
+        Shape {
+            positions: self.positions.iter().map(|&pos| pos + rhs).collect(),
+            anchor: self.anchor + rhs,
         }
     }
 }
