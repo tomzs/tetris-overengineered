@@ -58,7 +58,7 @@ impl Shape {
     pub fn collides_with(&self, other: &Shape) -> bool {
         self.positions.intersection(&other.positions).count() > 0
     }
-    pub fn rotate(&self) -> Self {
+    pub fn rotated(&self) -> Self {
         let Pos(a, b) = self.anchor;
         Self {
             positions: self
@@ -67,6 +67,21 @@ impl Shape {
                 .collect(),
             anchor: self.anchor,
         }
+    }
+    pub fn remove_line(&mut self, y: i32) {
+        self.positions = self
+            .positions
+            .iter()
+            .copied()
+            .filter(|pos| pos.1 != y)
+            .map(|pos| {
+                if pos.1 >= y {
+                    pos
+                } else {
+                    Pos(pos.0, pos.1 + 1)
+                }
+            })
+            .collect();
     }
 }
 
